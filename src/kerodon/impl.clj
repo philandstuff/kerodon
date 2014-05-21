@@ -277,6 +277,13 @@
   (when (contains? (:attrs field) :checked)
     (get-in field [:attrs :value] "on")))
 
+(derive ::reset ::ignored)
+(derive ::button ::ignored)
+
+(defmethod input->value ::ignored
+  [field]
+  nil)
+
 (defmethod input->value ::file
   ;; File inputs should not be coerced into strings
   [field]

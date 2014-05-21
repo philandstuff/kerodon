@@ -28,7 +28,7 @@ files and input streams, and those are hard to create in test cases, so don't te
         details (apply hash-map :url parsed)]
     (is (= expected (:params details)))))
 
-(defn multi-button-form-produces [fields-html button expected]
+(defn buttonless-form-produces [fields-html button expected]
   (let [html (str "<form action=/>"
                   fields-html
                   "</form>")
@@ -156,22 +156,28 @@ files and input streams, and those are hard to create in test cases, so don't te
                         "<select name=B disabled><option>A</option></select>"
                         "<textarea name=C disabled>content</textarea>")
                    {}))
-  (testing "multiple buttons"
+  (testing "buttons and submission"
     (testing "'Yes' button"
-      (multi-button-form-produces
+      (buttonless-form-produces
         (str "<input type=submit name=confirm value=Yes />"
              "<input type=submit name=confirm value=No />"
              "<input type=submit name=confirm value=Cancel />")
         "Yes" {"confirm" "Yes"}))
     (testing "'No' button"
-      (multi-button-form-produces
-        (str "<input type=submit name=confirm value=Yes />"
+      (buttonless-form-produces
+        (str "<button name=confirm value=Yes>Yes</button>"
              "<input type=submit name=confirm value=No />"
              "<input type=submit name=confirm value=Cancel />")
         "No" {"confirm" "No"}))
-    (testing "'Cancel' button"
-      (multi-button-form-produces
-        (str "<input type=submit name=confirm value=Yes />"
-             "<input type=submit name=confirm value=No />"
+    (testing "Reset and type=button not used"
+      (buttonless-form-produces
+        (str "<input name=text value=text />"
+             "<input type=button name=go value=Go />"
+             "<input type=reset name=reset value=reset />"
              "<input type=submit name=confirm value=Cancel />")
-        "Cancel" {"confirm" "Cancel"}))))
+        "Cancel" {"text" "text" "confirm" "Cancel"}))
+    (testing "button element submits"
+      (buttonless-form-produces
+        (str "<button name=save>Lets Go</button>"
+             "<input name=save value=GoGo type=submit />")
+        "Lets Go" {"save" "Lets Go"}))))
